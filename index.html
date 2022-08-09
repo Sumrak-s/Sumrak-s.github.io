@@ -101,7 +101,7 @@
       function auth(){
         vkBridge.send('VKWebAppGetUserInfo').then(_info =>{
           console.log(_info);
-          unityI.SendMessage('SDK', 'AuthenticateSuccess', JSON.stringify(_info));
+          myGameInstance.SendMessage('SDK', 'AuthenticateSuccess', JSON.stringify(_info));
         });
       }
 
