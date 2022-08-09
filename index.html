@@ -91,12 +91,11 @@
         });
       };
 	  
-      vkBridge.send('VKWebAppInit');
+      vkBridge.send('VKWebAppInit').then(data => {
+        console.log(data);
+        myGameInstance.SendMessage('SDK', 'SDKEnableSuccess', JSON.stringify(data));
+      });
 
-      function testIndex(){
-		alert('testIndex');
-		myGameInstance.SendMessage('SDK', 'IndexTest');
-	  }
 
       function auth(){
         vkBridge.send('VKWebAppGetUserInfo').then(_info =>{
@@ -104,7 +103,6 @@
           myGameInstance.SendMessage('SDK', 'AuthenticateSuccess', JSON.stringify(_info));
         });
       }
-
       
       document.body.appendChild(script);
     </script>
