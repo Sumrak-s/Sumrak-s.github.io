@@ -97,14 +97,14 @@
       function auth(){
         vkBridge.send('VKWebAppGetUserInfo').then(_info =>{
             console.log(_info);
-            myGameInstance.SendMessage('SDK', 'AuthenticateSuccess', JSON.stringify(_info));
+            myGameInstance.SendMessage('VKSDK', 'AuthenticateSuccess', JSON.stringify(_info));
         });
       }
 
       function getUserData(){
         vkBridge.send("VKWebAppStorageGet",{"keys":["_save"]}).then(data =>{
             console.log(data);
-            myGameInstance.SendMessage('SDK', 'DataGetting', JSON.stringify(data));
+            myGameInstance.SendMessage('VKSDK', 'DataGetting', JSON.stringify(data));
       });}
 
       function setUserData(data){
