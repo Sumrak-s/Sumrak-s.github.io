@@ -115,13 +115,15 @@
 
       function showFullscrenAd(){
         vkBridge.send('VKWebAppShowNativeAds',{ad_format:"interstitial"}).then(data => {
-          console.log('FullscrenAd ' + data);});
+          console.log('FullscrenAd ' + JSON.stringify(data.result));
+        });
       }
 
       function showRewardedAd(){
         vkBridge.send('VKWebAppShowNativeAds',{ad_format:"reward"}).then(data => {
-          console.log('RewardedAd ' + data);
-          myGameInstance.SendMessage('VKSDK', 'RewardGetting',JSON.stringify(data.result));})
+          console.log('RewardedAd ' + JSON.stringify(data.result));
+          myGameInstance.SendMessage('VKSDK', 'RewardGetting',JSON.stringify(data.result));
+        })
       }
 
       document.body.appendChild(script);
