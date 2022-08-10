@@ -134,6 +134,12 @@
         });
       }
 
+      function showWallPostBox(message){
+        vkBridge.send('VKWebAppShowWallPostBox', {"message": message}).then(data => {
+          console.log(data);
+        });
+      }
+
       document.body.appendChild(script);
     </script>
   </body>
