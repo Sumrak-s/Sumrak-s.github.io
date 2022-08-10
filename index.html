@@ -136,8 +136,7 @@
 
       function showWallPostBox(message){
         vkBridge.send('VKWebAppShowWallPostBox', {
-		"message": "Test.Mda.",
-		"attachments": "https://habr.com"
+		"message": message
 		}).then(data => {
           console.log(data);
         });
