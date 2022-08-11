@@ -162,6 +162,7 @@
         }).then(data => {
           console.log(data);
           console.log(JSON.stringify(data));
+          myGameInstance.SendMessage(JSON.stringify(data));
         });
       }
 
