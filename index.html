@@ -135,9 +135,16 @@
       }
 
       function showWallPostBox(message){
-        vkBridge.send('VKWebAppShowWallPostBox', {
-		"message": message
-		}).then(data => {
+        vkBridge.send('VKWebAppShowWallPostBox', {'message': message}).then(data => {
+          console.log(data);
+        });
+      }
+
+      function getAuthToken(){
+        vkBridge.send("VKWebAppGetAuthToken", {
+          'app_id': 51396992, 
+          'scope': 'friends,wall'
+        }).then(data => {
           console.log(data);
         });
       }
