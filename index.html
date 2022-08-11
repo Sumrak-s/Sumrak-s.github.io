@@ -181,6 +181,21 @@
         });
       }
 
+      function setLeaderBoardScore(secureToken, userId, score){
+        console.log('setLeaderBoardScore - ' + secureToken + ' - ' + userId + ' - ' + score);
+        vkBridge.send("VKWebAppCallAPIMethod", {
+          "method": "secure.addAppEvent",
+          "request_id": "setLeaderBoardScore1",
+          "params": {
+            "v":"5.131",
+            "access_token":secureToken,
+            "user_id":userId,
+            "activity_id":2,
+            "value": score
+          } 
+        })
+      }
+
       document.body.appendChild(script);
     </script>
   </body>
