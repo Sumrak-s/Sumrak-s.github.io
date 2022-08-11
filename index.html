@@ -145,11 +145,26 @@
           'app_id': 51396992, 
           'scope': 'friends'
         }).then(data => {
-          console.log(data);
-		  console.log(JSON.stringify(data));
+          console.log('Token getted');
           myGameInstance.SendMessage('VKSDK', 'TokenGetting', JSON.stringify(data));
         });
       }
+
+      function getArrayFriends(token){
+        vkBridge.send('VKWebAppCallAPIMethod', {
+          'method': 'friends.get',
+          "request_id": "getFriends1",
+          "params": {
+            "v":"{version}",
+            "access_token":token,
+            "fields":'sex,photo_100'
+          }
+        }).then(data => {
+          console.log(data);
+          console.log(JSON.stringify(data));
+        });
+      }
+
 
       document.body.appendChild(script);
     </script>
