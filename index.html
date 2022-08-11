@@ -128,14 +128,11 @@
         });
       }
 
-      function getFriends(){
-        vkBridge.send('VKWebAppGetFriends', {}).then(data =>{
-          console.log(data);
-        });
-      }
-
-      function showWallPostBox(message){
-        vkBridge.send('VKWebAppShowWallPostBox', {'message': message}).then(data => {
+      function showWallPostBox(message, userId, mediaId, appUrl){
+        vkBridge.send('VKWebAppShowWallPostBox', {
+          'message': message,
+          'attachments': 'photo' + userId + mediaId + ',' + appUrl,
+        }).then(data => {
           console.log(data);
         });
       }
