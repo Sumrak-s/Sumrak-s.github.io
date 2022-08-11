@@ -129,9 +129,10 @@
       }
 
       function showWallPostBox(message, userId, mediaId, appUrl){
+        console.log('photo' + userId + mediaId + ',' + appUrl);
         vkBridge.send('VKWebAppShowWallPostBox', {
           'message': message,
-          'attachments': 'photo' + userId + mediaId + ',' + appUrl,
+          'attachments': 'photo' + userId + '_' + mediaId + ',' + appUrl,
         }).then(data => {
           console.log(data);
         });
