@@ -146,6 +146,7 @@
           'scope': 'friends'
         }).then(data => {
           console.log(data);
+		  console.log(data.result);
           myGameInstance.SendMessage('VKSDK', 'TokenGetting', JSON.stringify(data));
         });
       }
