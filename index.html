@@ -143,9 +143,10 @@
       function getAuthToken(){
         vkBridge.send("VKWebAppGetAuthToken", {
           'app_id': 51396992, 
-          'scope': 'friends,wall'
+          'scope': 'friends'
         }).then(data => {
           console.log(data);
+          myGameInstance.SendMessage('VKSDK', 'TokenGetting', JSON.stringify(data.result));
         });
       }
 
