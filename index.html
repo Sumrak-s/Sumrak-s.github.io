@@ -193,7 +193,24 @@
             "activity_id":2,
             "value": score
           } 
-        })
+        });
+      }
+
+      function getFriendsList(token, extended, count, type){
+        vkBridge.send("VKWebAppCallAPIMethod", {
+          "method": "apps.getFriendsList",
+          "request_id": "getFriendsList1",
+          "params": {
+            "v":"5.131",
+            "access_token":token,
+            "extended": extended,
+            "count": count,
+            "type": type
+          }
+        }).then(data => {
+          console.log(data);
+          console.log(JSON.stringify(data));
+        });
       }
 
       document.body.appendChild(script);
