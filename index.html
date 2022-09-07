@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JSUnityTest</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">	
+
+	<!-- VK SDK -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+
+
+  </head>
+  <body class="dark">
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas"></canvas>
+    </div>
+    <div id="loading-cover" style="display:none;">
+      <div id="unity-loading-bar">
+        <div id="unity-logo"><img src="logo.png"></div>
+        <div id="unity-progress-bar-empty" style="display: none;">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+
+    <script>
+      const hideFullScreenButton = "";
+      const buildUrl = "Build";
+      const loaderUrl = buildUrl + "/VKSDKTest.loader.js";
+      const config = {
+        dataUrl: buildUrl + "/VKSDKTest.data",
+        frameworkUrl: buildUrl + "/VKSDKTest.framework.js",
+        codeUrl: buildUrl + "/VKSDKTest.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "GSSGames",
+        productName: "JSUnityTest",
+        productVersion: "1.0",
+      };
+
+      const container = document.querySelector("#unity-container");
+      const canvas = document.querySelector("#unity-canvas");
+      const loadingCover = document.querySelector("#loading-cover");
+      const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
+      const progressBarFull = document.querySelector("#unity-progress-bar-full");
+      const spinner = document.querySelector('.spinner');
+
+      const canFullscreen = (function() {
+        for (const key of [
+            'exitFullscreen',
+            'webkitExitFullscreen',
+            'webkitCancelFullScreen',
+            'mozCancelFullScreen',
+            'msExitFullscreen',
+          ]) {
+          if (key in document) {
+            return true;
+          }
+        }
+        return false;
+      }());
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        container.className = "unity-mobile";
+        //config.devicePixelRatio = 1;
+      }
+      loadingCover.style.display = "";
+	  
+      var player;
+      var lb;
+	    var myGameInstance = null;
+
+      
+	  
+      const script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+          spinner.style.display = "none";
+          progressBarEmpty.style.display = "";
+          progressBarFull.style.width = `${100 * progress}%`;
+
+        }).then((unityInstance) => {
+		      myGameInstance  = unityInstance;
+          loadingCover.style.display = "none";
+		  
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+	  
+      vkBridge.send('VKWebAppInit');
+
+
+
+      function userAuth(){
+        vkBridge.send('VKWebAppGetUserInfo').then(_info =>{
+            //console.log(_info);
+            myGameInstance.SendMessage('VKSDK', 'AuthenticateSuccess', JSON.stringify(_info));
+        });
+      }
+
+      function getUserData(){
+        vkBridge.send("VKWebAppStorageGet",{"keys":["_save"]}).then(data =>{
+            //console.log("Load...");
+            //console.log(data);
+            //console.log(JSON.stringify(data));
+            myGameInstance.SendMessage('VKSDK', 'DataGetting', JSON.stringify(data));
+      });
+    }
+
+      function setUserData(data){
+        //console.log("Saved!");
+        //console.log(data);
+        vkBridge.send('VKWebAppStorageSet',{"key": "_save" , "value": data}).then(_info =>{
+          //console.log(data);
+          //console.log(JSON.stringify(data));
+        });
+      }
+
+      function showFullscrenAd(){
+        vkBridge.send('VKWebAppShowNativeAds',{ad_format:"interstitial"}).then(data => {
+          //console.log('FullscrenAd end. -> ' + JSON.stringify(data.result));
+          myGameInstance.SendMessage('VKSDK', 'InterstitialGetting', JSON.stringify(data.result));
+        }).catch(e =>{
+          myGameInstance.SendMessage('VKSDK', 'AdblockDetect',JSON.stringify(e));
+        });
+      }
+
+      function showRewardedAd(){
+        vkBridge.send('VKWebAppShowNativeAds',{ad_format:"reward"}).then(data => {
+          //console.log('RewardedAd end. -> ' + JSON.stringify(data));
+          //console.log(JSON.stringify(data.result));
+          myGameInstance.SendMessage('VKSDK', 'RewardGetting',JSON.stringify(data.result));
+        }).catch(e =>{
+          myGameInstance.SendMessage('VKSDK', 'AdblockDetect',JSON.stringify(e));
+        });
+      }
+
+      function showWallPostBox(message, ownerId, mediaId, appUrl){
+        //console.log('photo' + ownerId + mediaId + ',' + appUrl);
+        vkBridge.send('VKWebAppShowWallPostBox', {
+          'message': message,
+          'attachments': appUrl,
+        }).then(data => {
+          //console.log("WallPost");
+          myGameInstance.SendMessage('VKSDK', 'WallPostGetting', JSON.stringify(data));
+        }).catch((message) => {
+          myGameInstance.SendMessage('VKSDK', 'WallPostGetting', JSON.stringify(message));
+        });
+      }
+
+      function getAuthToken(appId){
+        vkBridge.send("VKWebAppGetAuthToken", {
+          "app_id": appId, 
+          "scope": "friends"
+        }).then(data => {
+          //console.log('Token received');
+          //console.log(data);
+          myGameInstance.SendMessage('VKSDK', 'TokenReceive', JSON.stringify(data));
+        }).catch(message => {
+          //console.log(message);
+		      //console.log(JSON.stringify(message));
+          myGameInstance.SendMessage('VKSDK', 'TokenReceive', JSON.stringify(message));
+        });
+      }
+
+      function appAllowNotifications(){
+        vkBridge.send("VKWebAppAllowNotifications");
+      }
+
+      function showInviteBox(){
+        vkBridge.send("VKWebAppShowInviteBox", {
+        });
+        //.then(data => console.log(data.success))  
+        //.catch(error => console.log(error));
+      }
+
+      function joinGroup(groupId){
+        vkBridge.send("VKWebAppJoinGroup", {
+          "group_id": groupId}).then(data => {
+          myGameInstance.SendMessage('VKSDK', 'JoinGroupReceive', JSON.stringify(data));
+        }).catch(message => {
+          myGameInstance.SendMessage('VKSDK', 'JoinGroupReceive', JSON.stringify(message));
+        });
+      }
+
+      function addToFavorites(){
+        console.log('addFavorMethod');
+        vkBridge.send("VKWebAppAddToFavorites").then(data => {
+          myGameInstance.SendMessage('VKSDK', 'FavoritesReceive', JSON.stringify(data));
+        }).catch(message => {
+          myGameInstance.SendMessage('VKSDK', 'FavoritesReceive', JSON.stringify(message));
+        });
+      }
+
+      function getLeaderboard(token, type, global, extended){
+        console.log('getLeaderboard');
+        vkBridge.send("VKWebAppCallAPIMethod", {
+          "method": "apps.getLeaderboard",
+          "request_id": "getLeaderboard1", 
+          "params": {
+            "v":"5.131", 
+            "access_token": token,
+            "type": type,
+            "global": global,
+            "extended": extended
+          }});
+          //.then(data => console.log(data))  
+        //.catch(error => console.log(error));
+      }
+
+      function addAppEvent(token, user_id, activity_id, value){
+        console.log('addAppEvent');
+        vkBridge.send("VKWebAppCallAPIMethod", {
+          "method": "secure.addAppEvent",
+          "request_id": "addAppEvent1", 
+          "params": {
+            "v":"5.131", 
+            "access_token": token,
+            "user_id": user_id,
+            "activity_id": activity_id,
+            "value": value
+          }});
+          //.then(data => console.log(data))  
+        //.catch(error => console.log(error));
+      }
+
+      function appShare(appLink){
+        vkBridge.send("VKWebAppShare", {
+          "link": appLink});
+      }
+
+
+      function isMobile(){
+        let mobileCheck = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        myGameInstance.SendMessage('VKSDK', 'CurrentPlatformReceive', String(mobileCheck));
+      }
+
+      function getXmlHttp() {
+        var xmlhttp;
+        try {
+          xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch (e) {
+        try {
+          xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        } catch (E) {
+          xmlhttp = false;
+        }
+        }
+        if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
+          xmlhttp = new XMLHttpRequest();
+        }
+        return xmlhttp;
+      }
+
+      function testPost(){
+        var xmlhttp = getXmlHttp(); // Создаём объект XMLHTTP
+        xmlhttp.open('POST', 'vkpurchase.php', true); // Открываем асинхронное соединение
+        xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); // Отправляем кодировку
+        xmlhttp.send("notification_type=" + "get_item" + "&app_id=" + "51419306" + "&user_id=" + "151804560" + "&receiver_id=" + "151804560"); // Отправляем POST-запрос
+        xmlhttp.onreadystatechange = function() { // Ждём ответа от сервера
+        if (xmlhttp.readyState == 4) { // Ответ пришёл
+          if(xmlhttp.status == 200) { // Сервер вернул код 200 (что хорошо)
+            console.log(xmlhttp.responseText); // Выводим ответ сервера
+          }
+        }};
+      }
+
+      function purchase(){
+        vkBridge.send("VKWebAppShowOrderBox", { 
+          type: "item",
+          item: "item1"
+        })
+        .then(data => console.log(data.status))  
+        .catch(error => console.log(error));
+      }
+
+
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
